@@ -11,8 +11,14 @@ To make the best use of examples in this repository, you'll need the following:
 4. [AirScript Syntax Highlighter](https://marketplace.visualstudio.com/items?itemName=marinthiercelin.airscript-syntax-highlighter) for VS Code - this will make editing AirScript files much nicer.
 4. [TypeScript](https://www.typescriptlang.org/) (this usually comes with VS Code) - you'll need this recompile TypeScript files.
 
-## Examples
+## Usage
+To run the examples in this repo, do the following:
 
+1. Make sure your environment is set up as described above.
+2. Clone the project locally: `git clone https://github.com/GuildOfWeavers/genSTARK.demo.git`
+3. Run `npm install` - this will download all dependencies
+
+## Examples
 This repository contains the following examples:
 
 1. [MiMC](/examples/mimc) - contains [AirScript](https://github.com/GuildOfWeavers/AirScript) code for [MiMC computation](https://vitalik.ca/general/2018/07/21/starks_part_3.html#mimc).

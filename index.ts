@@ -20,8 +20,11 @@ const scriptPath = scriptPaths[example];
 let inputs: any[];
 try {
     if (example === 'mimc') {
-        const seed = BigInt(process.argv[3]);
-        inputs = [[seed]];
+        const seeds: bigint[] = [];
+        for (let i = 3; i < process.argv.length; i++) {
+            seeds.push(BigInt(process.argv[i]));
+        }        
+        inputs = [seeds];
     }
     else if (example === 'poseidon') {
         const v1 = BigInt(process.argv[3]);
@@ -54,9 +57,12 @@ printExecutionTrace(trace);
 // print control value
 if (example === 'mimc') {
     const steps = 64;
-    const seed = inputs![0][0];
-    const control = runMimc(stark.air.field, steps, seed);
-    console.log(`Running MiMC for ${steps} steps from value ${seed} should result in ${control[control.length - 1]}`);
+    const seeds = inputs![0];
+    for (let i = 0; i < seeds.length; i++) {
+        const seed = seeds[i];
+        const control = runMimc(stark.air.field, steps, seed);
+        console.log(`Running MiMC for ${steps} steps from value ${seed} should result in ${control[control.length - 1]}`);
+    }
 }
 else if (example === 'poseidon') {
     const values = [inputs![0][0], inputs![1][0]];
