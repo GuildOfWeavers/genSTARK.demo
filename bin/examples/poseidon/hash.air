@@ -1,0 +1,43 @@
+define PoseidonHash over prime field (2^32 - 3 * 2^25 + 1) {
+
+    const alpha: 5;
+    const mds: [
+        [2839769753, 1346737110, 1785908782],
+        [188086132,  2502886257, 1931847234],
+        [3765329763, 2749177114,   93405347]
+    ];
+
+    static roundConstants: [
+        cycle prng(sha256, 0x01, 64),
+        cycle prng(sha256, 0x02, 64),
+        cycle prng(sha256, 0x03, 64)
+    ];
+
+    secret input value1: element[1];
+    secret input value2: element[1];
+
+    transition 3 registers {
+        for each (value1, value2) {
+            
+            // initialize the execution trace
+            init { yield [value1, value2, 0]; }
+
+            for steps [1..4, 60..63] {
+                // full rounds
+                yield mds # ($r + roundConstants)^alpha;
+            }
+
+            for steps [5..59] {
+                // partial rounds
+                v2 <- ($r2 + roundConstants[2])^alpha;
+                yield mds # [...($r[0..1] + roundConstants[0..1]), v2];
+            }
+        }
+    }
+
+    enforce 3 constraints {
+        for all steps {
+            enforce transition($r) = $n;
+        }
+    }
+}

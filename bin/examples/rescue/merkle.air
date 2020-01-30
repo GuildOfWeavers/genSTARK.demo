@@ -1,0 +1,91 @@
+define MerkleBranch over prime field (2^64 - 21 * 2^30 + 1) {
+
+    const alpha: 3;
+    const inv_alpha: 6148914683720324437;
+
+    const mds: [
+        [18446744051160973310, 18446744051160973301],
+        [                   4,                   13]
+    ];
+
+    const inv_mds: [
+        [ 2049638227906774814,  6148914683720324439],
+        [16397105823254198500, 12297829367440648875]
+    ];
+
+    static roundConstants: [
+        cycle prng(sha256, 0x01, 32),
+        cycle prng(sha256, 0x02, 32),
+        cycle prng(sha256, 0x03, 32),
+        cycle prng(sha256, 0x04, 32),
+        cycle prng(sha256, 0x05, 32),
+        cycle prng(sha256, 0x06, 32),
+        cycle prng(sha256, 0x07, 32),
+        cycle prng(sha256, 0x08, 32)
+    ];
+
+    // declare inputs
+    secret input leaf       : element[1];       // leaf of the merkle branch
+    secret input node       : element[1][1];    // nodes in the merkle branch
+    public input indexBit   : boolean[1][1];    // binary representation of leaf position
+
+    transition 8 registers {
+        for each (leaf, node, indexBit) {
+
+            // initialize state with first 2 node values
+            init {
+                yield [leaf, node, 0, 0, node, leaf, 0, 0];
+            }
+
+            for each (node, indexBit) {
+
+                // for each node, figure out which value advances to the next cycle
+                init {
+                    h <- indexBit ? $r4 : $r0;
+                    yield [h, node, 0, 0, node, h, 0, 0];
+                }
+
+                // execute Rescue hash function computation for 31 steps
+                for steps [1..31] {
+                    // compute hash(p, v)
+                    S1 <- mds # $r[0..3]^alpha + roundConstants[0..3];
+                    S1 <- mds # (/S1)^(inv_alpha) + roundConstants[4..7];
+    
+                    // compute hash(v, p)
+                    S2 <- mds # $r[4..7]^alpha + roundConstants[0..3];
+                    S2 <- mds # (/S2)^(inv_alpha) + roundConstants[4..7];
+    
+                    yield [...S1, ...S2];
+                }
+            }
+        }
+    }
+
+    enforce 8 constraints {
+        for each (leaf, node, indexBit) {
+            init {
+                enforce [leaf, node, 0, 0, node, leaf, 0, 0] = $n;
+            }
+
+            for each (node, indexBit) {
+                init {
+                    h <- indexBit ? $r4 : $r0;
+                    enforce [h, node, 0, 0, node, h, 0, 0] = $n;
+                }
+
+                for steps [1..31] {
+                    // compute hash(p, v)
+                    S1 <- mds # $r[0..3]^alpha + roundConstants[0..3];
+                    N1 <- (inv_mds # ($n[0..3] - roundConstants[4..7]))^alpha;
+    
+                    // compute hash(v, p)
+                    S2 <- mds # $r[4..7]^alpha + roundConstants[0..3];
+                    N2 <- (inv_mds # ($n[4..7] - roundConstants[4..7]))^alpha;
+    
+                    enforce [...S1, ...S2] = [...N1, ...N2];
+                }
+            }
+        }
+    }
+
+}

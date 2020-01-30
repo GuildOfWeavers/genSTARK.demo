@@ -1,0 +1,52 @@
+define RescueHash over prime field (2^64 - 21 * 2^30 + 1) {
+
+    const alpha: 3;
+    const inv_alpha: 6148914683720324437;
+
+    const mds: [
+        [18446744051160973310, 18446744051160973301],
+        [                   4,                   13]
+    ];
+
+    const inv_mds: [
+        [ 2049638227906774814,  6148914683720324439],
+        [16397105823254198500, 12297829367440648875]
+    ];
+
+    static roundConstants: [
+        cycle prng(sha256, 0x01, 32),
+        cycle prng(sha256, 0x02, 32),
+        cycle prng(sha256, 0x03, 32),
+        cycle prng(sha256, 0x04, 32)
+    ];
+
+    secret input value1: element[1];
+    secret input value2: element[1];
+
+    transition 2 registers {
+        for each (value1, value2) {
+            init {
+                yield [value1, value2];
+            }
+
+            for steps [1..31] {
+                S <- mds # $r^alpha + roundConstants[0..1];
+                yield mds # (/S)^(inv_alpha) + roundConstants[2..3];
+            }
+        }
+    }
+
+    enforce 2 constraints {
+        for each (value1, value2) {
+            init {
+                enforce [value1, value2] = $n;
+            }
+
+            for steps [1..31] {
+                S <- mds # $r^alpha + roundConstants[0..1];
+                N <- (inv_mds # ($n - roundConstants[2..3]))^alpha;
+                enforce S = N;
+            }
+        }
+    }
+}

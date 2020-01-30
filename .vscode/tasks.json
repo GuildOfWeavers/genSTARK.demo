@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "setup",
+            "type": "shell",
+            "command": "npm install",
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+        {
+            "label": "build",
+            "type": "npm",
+            "script": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": [ "$tsc" ]
+        }
+    ]
+}

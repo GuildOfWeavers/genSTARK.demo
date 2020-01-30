@@ -1,0 +1,41 @@
+{
+  "name": "@guildofweavers/genstark-demo",
+  "version": "0.1.0",
+  "description": "Examples of using genSTARK library",
+  "main": "index.js",
+  "license": "MIT",
+  "author": {
+    "name": "Bobbin Threadbare",
+    "email": "bobbinth@protonmail.com"
+  },
+  "keywords": [
+    "stark",
+    "zero-knowledge",
+    "cryptography"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GuildOfWeavers/genSTARK.demo.git"
+  },
+  "engines": {
+    "node": ">=12.7.x"
+  },
+  "scripts": {
+    "clean": "rimraf bin",
+    "compile": "tsc -p .",
+    "copyfiles": "copyfiles ./package*.json ./*.d.ts ./*.md  \"**/*.air\" bin",
+    "build": "npm run clean && npm run copyfiles && npm run compile",
+    "mimc": "node bin/index.js mimc",
+    "poseidon": "node bin/index.js poseidon",
+    "merkle": "node bin/index.js merkle"
+  },
+  "devDependencies": {
+    "@types/node": "12.7.x",
+    "copyfiles": "2.1.x",
+    "rimraf": "3.0.x"
+  },
+  "dependencies": {
+    "@guildofweavers/genstark": "0.7.x",
+    "table": "5.4.x"
+  }
+}
