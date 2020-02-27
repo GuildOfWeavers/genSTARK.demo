@@ -1,9 +1,8 @@
 // IMPORTS
 // ================================================================================================
 import * as assert from 'assert';
-import { StarkOptions, instantiate } from '@guildofweavers/genstark';
-import { getGenerator, getRandomKeys, sign, hashMessage, verify } from './utils';
-import { printExecutionTrace } from '../../lib/utils';
+import { StarkOptions, instantiate, Assertion } from '@guildofweavers/genstark';
+import { getGenerator, getRandomKeys, sign, hashMessage } from './utils';
 
 // STARK DEFINITION
 // ================================================================================================
@@ -19,46 +18,12 @@ const options: StarkOptions = {
 // create the STARK for Schnorr signatures
 const sigStark = instantiate('./examples/schnorr/schnorr.aa', 'default', options);
 
-// CONTROL VALUES
-// ================================================================================================
-const message = 'testing';
-const g = getGenerator();
-const keys = getRandomKeys();
-
-const signature = sign(message, keys.sk);
-const h = hashMessage(message, keys.pk, signature.r);
-
-const result = verify(message, keys.pk, signature);
-console.log(`signature verified: ${result}`);
-
 // TESTING
 // ================================================================================================
-const inputs = [
-    [g[0]],
-    [g[1]],
-    [toBits(signature.s)],
-    [keys.pk[0]],
-    [keys.pk[1]],
-    [toBits(h)],
-    [signature.r[0]],
-    [signature.r[1]]
-];
+// build inputs and assertions for verifying 4 signatures
+const { inputs, assertions } = buildInputsAndAssertions(4);
 
-// set up inputs and assertions
-const assertions = [
-    { step: 0,   register: 0,  value: g[0]            },
-    { step: 0,   register: 1,  value: g[1]            },
-    { step: 0,   register: 2,  value: 0n              },
-    { step: 0,   register: 3,  value: 0n              },
-    { step: 255, register: 7,  value: signature.s     },
-    { step: 0,   register: 8,  value: keys.pk[0]      },
-    { step: 0,   register: 9,  value: keys.pk[1]      },
-    { step: 0,   register: 10, value: signature.r[0]  },
-    { step: 0,   register: 11, value: signature.r[1]  },
-    { step: 255, register: 14, value: h               }
-];
-
-// prove that the assertions hold if we execute MiMC computation with given inputs
+// prove that the assertions hold if we execute signature verifications with given inputs
 let proof = sigStark.prove(assertions, inputs);
 console.log('-'.repeat(20));
 
@@ -82,11 +47,15 @@ console.log(`STARK security level: ${sigStark.securityLevel}`);
 
 // HELPER FUNCTIONS
 // ================================================================================================
-function buildInputs(inputCount: number) {
+function buildInputsAndAssertions(signatureCount: number) {
+    const g = getGenerator();
+    const keys = getRandomKeys();
+
     const inputs: any[][] = [];
     for (let i = 0; i < 8; i++) { inputs.push([]); }
+    const assertions: Assertion[] = [];
 
-    for (let i = 0; i < inputCount; i++) {
+    for (let i = 0, start = 0, end = 255; i < signatureCount; i++, start += 256, end += 256) {
         let msg = `testing${i}`;
         let sig = sign(msg, keys.sk);
         let h = hashMessage(msg, keys.pk, sig.r);
@@ -99,9 +68,20 @@ function buildInputs(inputCount: number) {
         inputs[5].push(toBits(h));
         inputs[6].push(sig.r[0]);
         inputs[7].push(sig.r[1]);
-    };
 
-    return { inputs };
+        assertions.push({ step: start,  register: 0,    value: g[0]       });
+        assertions.push({ step: start,  register: 1,    value: g[1]       });
+        assertions.push({ step: start,  register: 2,    value: 0n         });
+        assertions.push({ step: start,  register: 3,    value: 0n         });
+        assertions.push({ step: end,    register: 7,    value: sig.s      });
+        assertions.push({ step: start,  register: 8,    value: keys.pk[0] });
+        assertions.push({ step: start,  register: 9,    value: keys.pk[1] });
+        assertions.push({ step: start,  register: 10,   value: sig.r[0]   });
+        assertions.push({ step: start,  register: 11,   value: sig.r[1]   });
+        assertions.push({ step: end,    register: 14,   value: h          });
+    }
+
+    return { inputs, assertions };
 }
 
 function toBits(value: bigint) {

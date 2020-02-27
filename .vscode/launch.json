@@ -5,7 +5,7 @@
       "name": "Launch",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/bin/index.js",
+      "program": "${workspaceRoot}/bin/examples/schnorr/index.js",
       "cwd": "${workspaceRoot}/bin",
       "preLaunchTask": "build",
       "env": {

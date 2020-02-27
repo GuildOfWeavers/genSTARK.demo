@@ -63,7 +63,7 @@
             (scalar 0)))
 
 	(export default
-		(registers 15) (constraints 17) (steps 1)
+		(registers 15) (constraints 19) (steps 1)
 		(static
             (input secret (shift -1))               # 0: Gx
             (input secret (peerof 0) (shift -1))    # 1: Gy
@@ -225,13 +225,15 @@
                     (slice (load.trace 1) 0 3) (scalar 0) (scalar 0) (slice (load.trace 1) 6 7)
                     (slice (load.trace 1) 8 11) (scalar 0) (scalar 0) (get (load.trace 1) 14)
                     (sub (exp (get (load.static 0) 2) (scalar 2)) (get (load.static 0) 2))   # s bits are binary
-                    (sub (exp (get (load.static 0) 5) (scalar 2)) (get (load.static 0) 5)))  # h bits are binary
+                    (sub (exp (get (load.static 0) 5) (scalar 2)) (get (load.static 0) 5))   # h bits are binary
+                    (scalar 0) (scalar 0))
                 (add
                     (mul    # new inputs
                         (vector
                             (slice (load.static 0) 0 1) (scalar 0) (scalar 0) (load.local $mp1_check) (load.local $mq1_check) (scalar 1) (scalar 0)
                             (slice (load.static 0) 3 4) (slice (load.static 0) 6 7) (load.local $mp2_check) (load.local $mq2_check) (scalar 0)
-                            (scalar 0) (scalar 0))
+                            (scalar 0) (scalar 0)
+                            (sub (slice (load.trace 0) 2 3) (slice (load.trace 0) 10 11)))
                         (get (load.static 0) 8))
                     (mul    # regular transition
                         (vector
@@ -243,7 +245,7 @@
                             (add
                                 (get (load.trace 0) 14)
                                 (mul (get (load.static 0) 5) (get (load.static 0) 9)))
-                            (scalar 0) (scalar 0))
+                            (scalar 0) (scalar 0) (scalar 0) (scalar 0))
                         (sub (scalar 1) (get (load.static 0) 8))
                     )
                 )
