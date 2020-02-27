@@ -23,7 +23,7 @@
   "scripts": {
     "clean": "rimraf bin",
     "compile": "tsc -p .",
-    "copyfiles": "copyfiles ./package*.json ./*.d.ts ./*.md  \"**/*.air\" bin",
+    "copyfiles": "copyfiles ./package*.json ./*.d.ts ./*.md  \"**/*.air\" \"**/*.aa\" bin",
     "build": "npm run clean && npm run copyfiles && npm run compile",
     "mimc": "node bin/index.js mimc",
     "poseidon": "node bin/index.js poseidon",
@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@guildofweavers/genstark": "0.7.x",
-    "table": "5.4.x"
+    "@types/elliptic": "6.4.x",
+    "elliptic": "6.5.x"
   }
 }
