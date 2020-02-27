@@ -73,12 +73,11 @@ function buildInputsAndAssertions(signatureCount: number) {
         assertions.push({ step: start,  register: 1,    value: g[1]       });
         assertions.push({ step: start,  register: 2,    value: 0n         });
         assertions.push({ step: start,  register: 3,    value: 0n         });
-        assertions.push({ step: end,    register: 7,    value: sig.s      });
-        assertions.push({ step: start,  register: 8,    value: keys.pk[0] });
-        assertions.push({ step: start,  register: 9,    value: keys.pk[1] });
-        assertions.push({ step: start,  register: 10,   value: sig.r[0]   });
-        assertions.push({ step: start,  register: 11,   value: sig.r[1]   });
-        assertions.push({ step: end,    register: 14,   value: h          });
+        assertions.push({ step: start,  register: 7,    value: keys.pk[0] });
+        assertions.push({ step: start,  register: 8,    value: keys.pk[1] });
+        assertions.push({ step: start,  register: 9,    value: sig.r[0]   });
+        assertions.push({ step: start,  register: 10,   value: sig.r[1]   });
+        assertions.push({ step: end,    register: 13,   value: h          });
     }
 
     return { inputs, assertions };
